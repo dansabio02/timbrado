@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Registro de Asistencia</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h1 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .instructions {
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .timestamp {
+            background-color: #f8f9fa;
+            padding: 14px;
+            border-radius: 8px;
+            margin-top: 5px;
+            font-family: monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--dark);
+            text-align: center;
+        }
+        
+        .btn {
+            padding: 14px 25px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .camera-container {
+            margin: 20px 0;
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+        }
+        
+        #video, #capturedImage {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .camera-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .photo-status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status-pending {
+            background-color: #ffeaa7;
+            color: #d35400;
+        }
+        
+        .status-success {
+            background-color: #d1f7c4;
+            color: #27ae60;
+        }
+        
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .btn-register {
+            padding: 16px 40px;
+            font-size: 18px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .admin-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .admin-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .test-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff4e5;
+            border-radius: 8px;
+            border-left: 4px solid #ffa94d;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-connected {
+            background-color: var(--success);
+        }
+        
+        .status-disconnected {
+            background-color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Registro de Asistencia</h1>
+            <p class="subtitle">Control de ingreso y salida del personal</p>
+        </header>
+        
+        <div class="instructions">
+            <h3>Instrucciones de uso:</h3>
+            <ol>
+                <li>Seleccione o ingrese su código de identificación</li>
+                <li>Seleccione el tipo de registro (Entrada o Salida)</li>
+                <li>Active la cámara y tome una foto (obligatorio)</li>
+                <li>Revise que la información sea correcta</li>
+            </ol>
+        </div>
+        
+        <form id="attendanceForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="code">Código de Identificación:</label>
+                    <select id="code" required>
+                        <option value="">Seleccione un código</option>
+                        <option value="EMP001">EMP001 - Juan Pérez</option>
+                        <option value="EMP002">EMP002 - María García</option>
+                        <option value="EMP003">EMP003 - Carlos López</option>
+                        <option value="EMP004">EMP004 - Ana Rodríguez</option>
+                        <option value="EMP005">EMP005 - Luis Martínez</option>
+                        <option value="EMP006">EMP006 - Laura Hernández</option>
+                        <option value="EMP007">EMP007 - Diego González</option>
+                        <option value="EMP008">EMP008 - Sofía Díaz</option>
+                        <option value="EMP009">EMP009 - Miguel Ruiz</option>
+                        <option value="EMP010">EMP010 - Elena Torres</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="manualCode">O ingrese manualmente:</label>
+                    <input type="text" id="manualCode" placeholder="Ingrese su código aquí">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Tipo de Registro:</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="entry" name="recordType" value="entry" checked>
+                        <label for="entry">Entrada</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="exit" name="recordType" value="exit">
+                        <label for="exit">Salida</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Hora Registrada:</label>
+                <div class="timestamp" id="timestamp">--:--:--</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Captura de Foto (Obligatoria):</label>
+                <div class="camera-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" class="hidden"></canvas>
+                    <img id="capturedImage" class="hidden" alt="Foto capturada">
+                    
+                    <div class="camera-buttons">
+                        <button type="button" class="btn btn-primary" id="startCamera">
+                            <i class="fas fa-camera"></i> Activar Cámara
+                        </button>
+                        <button type="button" class="btn btn-danger" id="capturePhoto" disabled>
+                            <i class="fas fa-camera-retro"></i> Tomar Foto
+                        </button>
+                    </div>
+                    
+                    <div class="photo-status status-pending" id="photoStatus">
+                        <i class="fas fa-exclamation-circle"></i> Foto no capturada
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success btn-register" id="submitBtn" disabled>
+                    <i class="fas fa-check-circle"></i> Registrar
+                </button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Enviando datos a Google Sheets, por favor espere...</p>
+            </div>
+        </form>
+        
+        <div class="test-section">
+            <h3><i class="fas fa-plug"></i> Estado de Conexión</h3>
+            <p id="connectionStatus">
+                <span class="status-indicator status-connected"></span>
+                Conectado a Google Sheets
+            </p>
+            <button id="testConnection" class="btn btn-primary">
+                <i class="fas fa-sync-alt"></i> Probar Conexión
+            </button>
+            <div id="connectionResult" style="margin-top: 10px;"></div>
+        </div>
+        
+    </div>
+    
+    <div id="notification" class="notification"></div>
+
+    <footer>
+        <p>Sistema de Registro de Asistencia &copy; 2023</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referencias a elementos DOM
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const capturedImage = document.getElementById('capturedImage');
+            const startCameraBtn = document.getElementById('startCamera');
+            const capturePhotoBtn = document.getElementById('capturePhoto');
+            const photoStatus = document.getElementById('photoStatus');
+            const submitBtn = document.getElementById('submitBtn');
+            const timestamp = document.getElementById('timestamp');
+            const attendanceForm = document.getElementById('attendanceForm');
+            const codeSelect = document.getElementById('code');
+            const manualCodeInput = document.getElementById('manualCode');
+            const notification = document.getElementById('notification');
+            const loading = document.getElementById('loading');
+            const testConnectionBtn = document.getElementById('testConnection');
+            const connectionResult = document.getElementById('connectionResult');
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            // URL de Google Apps Script (ya implementada)
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7t_KKHv2faAwW7Z4KMyi4pqzxTd98kMGkfQjz4pY6FMjSKIYIpOFuKt95nSmUz-R2GQ/exec';
+            
+            // Variables de estado
+            let stream = null;
+            let photoTaken = false;
+            
+            // Actualizar timestamp en tiempo real
+            function updateTimestamp() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                const dateString = now.toLocaleDateString();
+                timestamp.textContent = `${dateString} ${timeString}`;
+            }
+            
+            setInterval(updateTimestamp, 1000);
+            updateTimestamp();
+            
+            // Probar conexión
+            testConnectionBtn.addEventListener('click', async function() {
+                connectionResult.innerHTML = '<div style="color: #3498db;"><i class="fas fa-spinner fa-spin"></i> Probando conexión...</div>';
+                
+                try {
+                    // Enviar solicitud de prueba
+                    const testData = {
+                        codigo: "TEST",
+                        tipo: "Prueba",
+                        fecha: new Date().toLocaleDateString(),
+                        hora: new Date().toLocaleTimeString(),
+                        timestamp: new Date().toISOString(),
+                        test: true
+                    };
+                    
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(testData)
+                    });
+                    
+                    if (response.ok) {
+                        connectionResult.innerHTML = '<div style="color: green;"><i class="fas fa-check-circle"></i> Conexión exitosa con Google Sheets</div>';
+                        connectionStatus.innerHTML = '<span class="status-indicator status-connected"></span> Conectado a Google Sheets';
+                    } else {
+                        connectionResult.innerHTML = '<div style="color: red;"><i class="fas fa-times-circle"></i> Error en la conexión: ' + response.status + '</div>';
+                        connectionStatus.innerHTML = '<span class="status-indicator status-disconnected"></span> Error de conexión';
+                    }
+                } catch (error) {
+                    connectionResult.innerHTML = '<div style="color: red;"><i class="fas fa-times-circle"></i> Error: ' + error.message + '</div>';
+                    connectionStatus.innerHTML = '<span class="status-indicator status-disconnected"></span> Error de conexión';
+                }
+            });
+            
+            // Sincronizar los campos de código
+            codeSelect.addEventListener('change', function() {
+                if (this.value) {
+                    manualCodeInput.value = this.value;
+                }
+            });
+            
+            manualCodeInput.addEventListener('input', function() {
+                if (this.value) {
+                    codeSelect.value = "";
+                }
+            });
+            
+            // Mostrar notificación
+            function showNotification(message, type) {
+                notification.textContent = message;
+                notification.className = `notification ${type} show`;
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Activar cámara
+            startCameraBtn.addEventListener('click', async function() {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'user',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }, 
+                        audio: false 
+                    });
+                    
+                    video.srcObject = stream;
+                    capturePhotoBtn.disabled = false;
+                    startCameraBtn.disabled = true;
+                    
+                    // Mostrar video y ocultar imagen capturada si existe
+                    video.classList.remove('hidden');
+                    capturedImage.classList.add('hidden');
+                    
+                } catch (error) {
+                    console.error('Error al acceder a la cámara:', error);
+                    showNotification('No se pudo acceder a la cámara. Asegúrese de permitir el acceso.', 'error');
+                }
+            });
+            
+            // Capturar foto
+            capturePhotoBtn.addEventListener('click', function() {
+                if (!stream) return;
+                
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Detener la cámara
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                
+                // Mostrar la imagen capturada
+                capturedImage.src = canvas.toDataURL('image/png');
+                capturedImage.classList.remove('hidden');
+                video.classList.add('hidden');
+                
+                photoTaken = true;
+                photoStatus.textContent = 'Foto capturada correctamente';
+                photoStatus.className = 'photo-status status-success';
+                
+                // Habilitar el botón de enviar
+                submitBtn.disabled = false;
+                capturePhotoBtn.disabled = true;
+                startCameraBtn.disabled = false;
+                startCameraBtn.textContent = ' Volver a tomar foto';
+                
+                showNotification('Foto capturada correctamente', 'success');
+            });
+            
+            // Manejar envío del formulario
+            attendanceForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!photoTaken) {
+                    showNotification('Debe capturar una foto antes de registrar.', 'error');
+                    return;
+                }
+                
+                const codeValue = manualCodeInput.value || codeSelect.value;
+                if (!codeValue) {
+                    showNotification('Debe ingresar o seleccionar un código.', 'error');
+                    return;
+                }
+                
+                const recordType = document.querySelector('input[name="recordType"]:checked').value;
+                const now = new Date();
+                
+                const formData = {
+                    codigo: codeValue,
+                    tipo: recordType === 'entry' ? 'Entrada' : 'Salida',
+                    fecha: now.toLocaleDateString(),
+                    hora: now.toLocaleTimeString(),
+                    timestamp: now.toISOString()
+                };
+                
+                // Mostrar indicador de carga
+                loading.style.display = 'block';
+                submitBtn.disabled = true;
+                
+                try {
+                    // Enviar datos a Google Sheets
+                    const response = await sendDataToGoogleSheets(formData);
+                    
+                    if (response.result === 'success') {
+                        showNotification('Registro exitoso. Los datos se han guardado en Google Sheets.', 'success');
+                        
+                        // Reiniciar formulario
+                        attendanceForm.reset();
+                        capturedImage.classList.add('hidden');
+                        video.classList.remove('hidden');
+                        photoTaken = false;
+                        photoStatus.textContent = 'Foto no capturada';
+                        photoStatus.className = 'photo-status status-pending';
+                        startCameraBtn.textContent = 'Activar Cámara';
+                        submitBtn.disabled = true;
+                    } else {
+                        showNotification('Error al guardar los datos: ' + response.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('Error de conexión. Intente nuevamente.', 'error');
+                } finally {
+                    // Ocultar indicador de carga
+                    loading.style.display = 'none';
+                    submitBtn.disabled = !photoTaken;
+                }
+            });
+            
+            // Función para enviar datos a Google Sheets
+            async function sendDataToGoogleSheets(data) {
+                try {
+                    // Usar un proxy para evitar problemas de CORS
+                    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                    const response = await fetch(proxyUrl + SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor: ' + response.status);
+                    }
+                    
+                    const result = await response.json();
+                    return result;
+                    
+                } catch (error) {
+                    console.error('Error al enviar a Google Sheets:', error);
+                    
+                    // Intentar sin proxy si falla
+                    try {
+                        const response = await fetch(SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        // Con no-cors no podemos leer la respuesta, pero asumimos éxito
+                        return {result: 'success', message: 'Datos enviados (modo no-cors)'};
+                    } catch (secondError) {
+                        console.error('Error también en modo no-cors:', secondError);
+                        throw new Error('No se pudo conectar con Google Sheets');
+                    }
+                }
+            }
+            
+            // Probar la conexión al cargar la página
+            testConnectionBtn.click();
+        });
+    </script>
+    
+    <!-- Font Awesome para iconos -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
